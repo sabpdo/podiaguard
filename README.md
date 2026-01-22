@@ -1,4 +1,4 @@
-# Podiaguard
+# Podiguard
 
 *Automatically synced with your [v0.app](https://v0.app) deployments*
 
@@ -14,7 +14,7 @@ Any changes you make to your deployed app will be automatically pushed to this r
 
 Your project is live at:
 
-**[https://vercel.com/sabrina-dos-projects/v0-foot-ulcer](https://vercel.com/sabrina-dos-projects/podiaguard)**
+**[https://vercel.com/sabrina-dos-projects/v0-foot-ulcer](https://vercel.com/sabrina-dos-projects/podiguard)**
 
 
 ## Local Development

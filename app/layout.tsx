@@ -13,7 +13,7 @@ const _geistMono = V0_Font_Geist_Mono({ subsets: ['latin'], weight: ["100", "200
 const _sourceSerif_4 = V0_Font_Source_Serif_4({ subsets: ['latin'], weight: ["200", "300", "400", "500", "600", "700", "800", "900"] })
 
 export const metadata: Metadata = {
-  title: 'Podiaguard - Patient Management Platform',
+  title: 'Podiguard - Patient Management Platform',
   description: 'Track and manage your foot ulcer healing progress with photo documentation, educational resources, and personalized care guidance.',
   generator: 'v0.app',
   icons: {

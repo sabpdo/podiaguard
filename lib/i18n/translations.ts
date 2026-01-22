@@ -85,7 +85,7 @@ export const translations = {
         },
         // Capture page
         capture: {
-            title: 'Podiaguard',
+            title: 'Podiguard',
             placeCellPhone: 'Place your cell phone in the frame',
             cellPhoneDetected: 'Cell phone detected! Move your cell phone to the right position',
             goFurther: 'Go further',
