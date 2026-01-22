@@ -17,8 +17,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Shield } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { useLanguage } from "@/lib/i18n/context";
 
 export default function PrivacyAgreementPage() {
+  const { t } = useLanguage();
   const [accepted, setAccepted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [checkingAgreement, setCheckingAgreement] = useState(true);
@@ -97,10 +99,10 @@ export default function PrivacyAgreementPage() {
             <Shield className="h-7 w-7 text-primary" />
           </div>
           <CardTitle className="text-2xl font-semibold text-balance">
-            Privacy Agreement
+            {t.privacy.title}
           </CardTitle>
           <CardDescription>
-            Please read and accept our privacy policy to continue
+            {t.privacy.description}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -112,63 +114,45 @@ export default function PrivacyAgreementPage() {
           <ScrollArea className="h-64 rounded-md border p-4">
             <div className="flex flex-col gap-4 text-sm text-muted-foreground leading-relaxed">
               <h3 className="font-semibold text-foreground">
-                1. Information We Collect
+                {t.privacy.section1Title}
               </h3>
               <p>
-                We collect personal health information including photographs of
-                your foot ulcers, notes about your condition, and account
-                information such as your email address. This information is
-                essential for providing you with personalized wound care
-                management.
+                {t.privacy.section1Content}
               </p>
 
               <h3 className="font-semibold text-foreground">
-                2. How We Use Your Information
+                {t.privacy.section2Title}
               </h3>
               <p>
-                Your health information is used to track your wound healing
-                progress, provide personalized notifications about wound care,
-                and help you and your healthcare providers make informed
-                decisions about your treatment.
+                {t.privacy.section2Content}
               </p>
 
               <h3 className="font-semibold text-foreground">
-                3. Data Security
+                {t.privacy.section3Title}
               </h3>
               <p>
-                We implement industry-standard security measures to protect your
-                personal health information. All data is encrypted in transit
-                and at rest. Access to your information is strictly limited to
-                authorized personnel.
+                {t.privacy.section3Content}
               </p>
 
               <h3 className="font-semibold text-foreground">
-                4. Your Rights
+                {t.privacy.section4Title}
               </h3>
               <p>
-                You have the right to access, modify, or delete your personal
-                information at any time. You can request a copy of all your data
-                or request complete deletion of your account through the app
-                settings.
+                {t.privacy.section4Content}
               </p>
 
               <h3 className="font-semibold text-foreground">
-                5. Data Sharing
+                {t.privacy.section5Title}
               </h3>
               <p>
-                We do not sell or share your personal health information with
-                third parties for marketing purposes. Your data may only be
-                shared with healthcare providers you explicitly authorize.
+                {t.privacy.section5Content}
               </p>
 
               <h3 className="font-semibold text-foreground">
-                6. HIPAA Compliance
+                {t.privacy.section6Title}
               </h3>
               <p>
-                This application is designed to comply with the Health Insurance
-                Portability and Accountability Act (HIPAA). We maintain strict
-                protocols to ensure the confidentiality, integrity, and
-                availability of your protected health information.
+                {t.privacy.section6Content}
               </p>
             </div>
           </ScrollArea>
@@ -182,9 +166,7 @@ export default function PrivacyAgreementPage() {
               htmlFor="accept"
               className="text-sm leading-relaxed cursor-pointer"
             >
-              I have read and agree to the Privacy Policy. I understand how my
-              personal health information will be collected, used, and
-              protected.
+              {t.privacy.agreementText}
             </label>
           </div>
         </CardContent>
@@ -195,7 +177,7 @@ export default function PrivacyAgreementPage() {
             disabled={!accepted || isLoading}
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Accept and Continue
+            {t.privacy.acceptButton}
           </Button>
         </CardFooter>
       </Card>

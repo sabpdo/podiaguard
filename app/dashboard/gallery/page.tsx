@@ -16,8 +16,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2, Camera, Calendar, FileText } from "lucide-react";
+import { Loader2, Camera, Calendar, FileText, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/context";
 
@@ -33,6 +34,8 @@ export default function GalleryPage() {
   const [images, setImages] = useState<UlcerImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<UlcerImage | null>(null);
+  const [imageToDelete, setImageToDelete] = useState<UlcerImage | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const supabase = getSupabaseBrowserClient();
 
   useEffect(() => {
@@ -114,6 +117,63 @@ export default function GalleryPage() {
     });
   };
 
+  const handleDeleteClick = (e: React.MouseEvent, image: UlcerImage) => {
+    e.stopPropagation(); // Prevent opening the detail dialog
+    setImageToDelete(image);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!imageToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Extract file path from image URL
+      let filePath = imageToDelete.image_url;
+      const urlMatch = imageToDelete.image_url.match(/ulcer-images\/(.+)$/);
+      if (urlMatch) {
+        filePath = urlMatch[1];
+      }
+
+      // Delete from storage first
+      const { error: storageError } = await supabase.storage
+        .from("ulcer-images")
+        .remove([filePath]);
+
+      if (storageError) {
+        console.warn("Storage delete error (may not exist):", storageError);
+        // Continue with database delete even if storage delete fails
+      }
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from("ulcer_images")
+        .delete()
+        .eq("id", imageToDelete.id)
+        .eq("user_id", user.id);
+
+      if (dbError) throw dbError;
+
+      // Remove from local state
+      setImages((prev) => prev.filter((img) => img.id !== imageToDelete.id));
+      setImageToDelete(null);
+      
+      // Close detail dialog if the deleted image was selected
+      if (selectedImage?.id === imageToDelete.id) {
+        setSelectedImage(null);
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert(t.gallery.deleteError);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -153,7 +213,7 @@ export default function GalleryPage() {
           {images.map((image) => (
             <Card
               key={image.id}
-              className="overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+              className="overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all relative group"
               onClick={() => setSelectedImage(image)}
             >
               <div className="aspect-square relative">
@@ -167,10 +227,19 @@ export default function GalleryPage() {
                   }}
                 />
                 {image.notes && (
-                  <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
+                  <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center z-10">
                     <FileText className="h-3 w-3 text-primary-foreground" />
                   </div>
                 )}
+                {/* Delete button */}
+                <button
+                  onClick={(e) => handleDeleteClick(e, image)}
+                  className="absolute top-2 left-2 h-7 w-7 rounded-full bg-red-500/90 hover:bg-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                  aria-label={t.gallery.deletePhoto}
+                  title={t.gallery.deletePhoto}
+                >
+                  <Trash2 className="h-3.5 w-3.5 text-white" />
+                </button>
               </div>
               <CardContent className="p-3">
                 <p className="text-xs font-medium">
@@ -222,8 +291,48 @@ export default function GalleryPage() {
                   </p>
                 </div>
               )}
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  setImageToDelete(selectedImage);
+                  setSelectedImage(null);
+                }}
+                className="w-full"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                {t.gallery.deletePhoto}
+              </Button>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!imageToDelete} onOpenChange={(open) => !open && !isDeleting && setImageToDelete(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t.gallery.deleteConfirmTitle}</DialogTitle>
+            <DialogDescription>
+              {t.gallery.deleteConfirmMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setImageToDelete(null)}
+              disabled={isDeleting}
+            >
+              {t.gallery.cancel}
+            </Button>
+            <Button
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              variant="destructive"
+            >
+              {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {t.gallery.deleteButton}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
