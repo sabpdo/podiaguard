@@ -29,7 +29,15 @@
 
 ## Overview
 
-Podiaguard is a medical device management platform designed to help patients track and manage their foot ulcer healing progress. The platform provides AI-powered wound analysis, photo documentation, educational resources, and a clinician dashboard for comprehensive patient care management.
+Podiaguard is a medical device management platform designed to help patients track and manage their diabetic foot ulcer healing progress. The platform provides AI-powered wound analysis, photo documentation, educational resources, and a clinician dashboard for comprehensive patient care management.
+
+## Context
+
+This was made as part of a 2 week healthcare innovation sprint as part of the UAE Healthcare Innovation Program/KU-MIT Healthcare Spring in January 2026.
+
+The concept was created by Mohamed Abdelmeguid, Amy Wu, Hiya Shash, and Sabrina Do.
+
+Mohamed Abdelmeguid and Sabrina Do coded up this website.
 
 ### Key Capabilities
 
