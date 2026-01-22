@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, TrendingDown, TrendingUp, Calendar, ImageIcon } from "lucide-react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts"
 import Image from "next/image"
+import { useLanguage } from "@/lib/i18n/context"
 
 interface UlcerImage {
   id: string
@@ -28,6 +29,7 @@ const createClient = getSupabaseBrowserClient;
 export default function WoundDetailsPage() {
   const router = useRouter()
   const supabase = getSupabaseBrowserClient()
+  const { language } = useLanguage()
   const [images, setImages] = useState<UlcerImage[]>([])
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState("")
@@ -60,8 +62,43 @@ export default function WoundDetailsPage() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: true })
 
+      // Generate signed URLs for images if needed (for private buckets)
       if (imagesData) {
-        setImages(imagesData)
+        const imagesWithUrls = await Promise.all(
+          imagesData.map(async (image) => {
+            if (!image.image_url) return image;
+            
+            // Try to extract file path from URL (format: https://...supabase.co/storage/v1/object/public/ulcer-images/user_id/timestamp.jpg)
+            // Or if it's already a path: user_id/timestamp.jpg
+            let filePath = image.image_url;
+            
+            // Extract path from full public URL
+            const urlMatch = image.image_url.match(/ulcer-images\/(.+)$/);
+            if (urlMatch) {
+              filePath = urlMatch[1];
+            }
+            
+            // Try to create a signed URL (works for private buckets)
+            try {
+              const { data: signedData, error: signedError } = await supabase.storage
+                .from("ulcer-images")
+                .createSignedUrl(filePath, 3600); // 1 hour expiry
+              
+              if (!signedError && signedData?.signedUrl) {
+                console.log("Using signed URL for:", filePath);
+                return { ...image, image_url: signedData.signedUrl };
+              }
+            } catch (err) {
+              console.warn("Could not create signed URL, using original:", err);
+            }
+            
+            // Fallback to original URL (works if bucket is public)
+            return image;
+          })
+        );
+        setImages(imagesWithUrls);
+      } else {
+        setImages([]);
       }
 
       setLoading(false)
@@ -80,14 +117,16 @@ export default function WoundDetailsPage() {
   const percentChange = firstSize > 0 ? ((firstSize - currentSize) / firstSize * 100).toFixed(1) : 0
   const isImproving = Number(percentChange) > 0
 
+  const locale = language === 'ar' ? 'ar-SA' : 'en-US'
+  
   const lastUpload = images.length > 0 
-    ? new Date(images[images.length - 1].created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    ? new Date(images[images.length - 1].created_at).toLocaleDateString(locale, { month: "short", day: "numeric" })
     : "No uploads"
 
   // Prepare chart data
   const chartData = images.length > 0 
     ? images.map(img => ({
-        date: new Date(img.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        date: new Date(img.created_at).toLocaleDateString(locale, { month: "short", day: "numeric" }),
         size: img.ulcer_size || 5
       }))
     : [
@@ -229,13 +268,18 @@ export default function WoundDetailsPage() {
                 >
                   <Image
                     src={image.image_url || "/placeholder.svg"}
-                    alt={`Wound image from ${new Date(image.created_at).toLocaleDateString()}`}
+                    alt={`Wound image from ${new Date(image.created_at).toLocaleDateString(locale)}`}
                     fill
                     className="object-cover"
+                    onError={(e) => {
+                      console.error("Image load error:", image.image_url);
+                      e.currentTarget.src = "/placeholder.svg";
+                    }}
+                    unoptimized
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
                     <p className="text-xs text-white font-medium">
-                      {new Date(image.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      {new Date(image.created_at).toLocaleDateString(locale, { month: "short", day: "numeric" })}
                     </p>
                   </div>
                 </button>

@@ -150,4 +150,40 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* RTL support */
+  [dir="rtl"] {
+    direction: rtl;
+  }
+  
+  [dir="ltr"] {
+    direction: ltr;
+  }
+  
+  /* Arabic font size - make it bigger for better readability */
+  [dir="rtl"],
+  [dir="rtl"] *,
+  [lang="ar"],
+  [lang="ar"] * {
+    font-size: 1.1em;
+    line-height: 1.7;
+  }
+  
+  /* Make Arabic text in specific elements even larger */
+  [dir="rtl"] h1,
+  [lang="ar"] h1 {
+    font-size: 1.3em;
+  }
+  
+  [dir="rtl"] h2,
+  [lang="ar"] h2 {
+    font-size: 1.2em;
+  }
+  
+  [dir="rtl"] button,
+  [lang="ar"] button,
+  [dir="rtl"] .text-sm,
+  [lang="ar"] .text-sm {
+    font-size: 1.05em;
+  }
 }

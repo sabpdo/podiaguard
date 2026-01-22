@@ -21,6 +21,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/context";
 
 interface Notification {
   id: string;
@@ -32,6 +33,7 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
+  const { t } = useLanguage();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = getSupabaseBrowserClient();
@@ -90,9 +92,9 @@ export default function NotificationsPage() {
       (now.getTime() - date.getTime()) / (1000 * 60 * 60)
     );
 
-    if (diffHours < 1) return "Just now";
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffHours < 48) return "Yesterday";
+    if (diffHours < 1) return t.notifications.justNow;
+    if (diffHours < 24) return `${diffHours}${t.notifications.hoursAgo}`;
+    if (diffHours < 48) return t.notifications.yesterday;
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
@@ -121,16 +123,16 @@ export default function NotificationsPage() {
     <div className="flex flex-col gap-6 p-4 max-w-lg mx-auto">
       <div className="flex items-center justify-between pt-2">
         <div>
-          <h1 className="text-2xl font-semibold">Notifications</h1>
+          <h1 className="text-2xl font-semibold">{t.notifications.title}</h1>
           <p className="text-muted-foreground">
             {unreadCount > 0
-              ? `${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}`
-              : "All caught up"}
+              ? `${unreadCount} ${unreadCount > 1 ? t.notifications.unreadNotifications : t.notifications.unreadNotification}`
+              : t.notifications.allCaughtUp}
           </p>
         </div>
         {unreadCount > 0 && (
           <Button variant="outline" size="sm" onClick={markAllAsRead}>
-            Mark all read
+            {t.notifications.markAllRead}
           </Button>
         )}
       </div>
@@ -142,9 +144,9 @@ export default function NotificationsPage() {
               <BellOff className="h-8 w-8 text-muted-foreground" />
             </div>
             <div>
-              <h3 className="font-semibold mb-1">No notifications</h3>
+              <h3 className="font-semibold mb-1">{t.notifications.noNotifications}</h3>
               <p className="text-sm text-muted-foreground">
-                You&apos;ll receive updates about your wound care here
+                {t.notifications.noNotificationsDescription}
               </p>
             </div>
           </CardContent>
@@ -168,7 +170,7 @@ export default function NotificationsPage() {
                         {notification.title}
                         {!notification.read && (
                           <Badge variant="secondary" className="text-xs">
-                            New
+                            {t.notifications.new}
                           </Badge>
                         )}
                       </CardTitle>
@@ -198,7 +200,7 @@ export default function NotificationsPage() {
                     className="mt-2 h-8 text-xs"
                     onClick={() => markAsRead(notification.id)}
                   >
-                    Mark as read
+                    {t.notifications.markAsRead}
                   </Button>
                 )}
               </CardContent>

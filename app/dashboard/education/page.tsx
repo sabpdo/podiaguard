@@ -28,6 +28,7 @@ import {
   Footprints,
   ShieldCheck,
 } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/context";
 
 interface WoundExample {
   id: string;
@@ -38,91 +39,64 @@ interface WoundExample {
   tips: string[];
 }
 
-const goodExamples: WoundExample[] = [
-  {
-    id: "good-1",
-    title: "Healthy Healing Progress",
-    description:
-      "Pink granulation tissue forming at the wound bed indicates healthy healing. The wound edges are clean and gradually closing.",
-    status: "good",
-    imageDescription:
-      "Clean wound with pink tissue, reduced size from previous week",
-    tips: [
-      "Continue current wound care routine",
-      "Keep the wound moist but not wet",
-      "Protect from pressure and friction",
-    ],
-  },
-  {
-    id: "good-2",
-    title: "Reduced Redness",
-    description:
-      "Minimal redness around wound edges. Swelling has decreased significantly compared to previous documentation.",
-    status: "good",
-    imageDescription: "Wound with minimal surrounding redness, normal skin tone",
-    tips: [
-      "Signs of infection are decreasing",
-      "Continue monitoring for any changes",
-      "Document progress regularly",
-    ],
-  },
-  {
-    id: "good-3",
-    title: "Clean Wound Bed",
-    description:
-      "No debris, dead tissue, or discharge visible. The wound bed appears clean and ready for healing.",
-    status: "good",
-    imageDescription: "Clear wound bed without debris or excessive discharge",
-    tips: [
-      "Maintain current cleaning routine",
-      "Apply prescribed dressings properly",
-      "Keep wound protected between changes",
-    ],
-  },
-];
+// Function to get translated examples
+function getGoodExamples(t: any): WoundExample[] {
+  return [
+    {
+      id: "good-1",
+      title: t.education.goodExample1Title,
+      description: t.education.goodExample1Description,
+      status: "good",
+      imageDescription: t.education.goodExample1ImageDesc,
+      tips: t.education.goodExample1Tips,
+    },
+    {
+      id: "good-2",
+      title: t.education.goodExample2Title,
+      description: t.education.goodExample2Description,
+      status: "good",
+      imageDescription: t.education.goodExample2ImageDesc,
+      tips: t.education.goodExample2Tips,
+    },
+    {
+      id: "good-3",
+      title: t.education.goodExample3Title,
+      description: t.education.goodExample3Description,
+      status: "good",
+      imageDescription: t.education.goodExample3ImageDesc,
+      tips: t.education.goodExample3Tips,
+    },
+  ];
+}
 
-const badExamples: WoundExample[] = [
-  {
-    id: "bad-1",
-    title: "Signs of Infection",
-    description:
-      "Increased redness spreading beyond wound edges, warmth to touch, and possible pus or foul odor indicate infection.",
-    status: "bad",
-    imageDescription:
-      "Wound with spreading redness, yellow/green discharge, swollen edges",
-    tips: [
-      "Contact your healthcare provider immediately",
-      "Do not attempt to drain the wound yourself",
-      "Keep the wound covered and clean",
-    ],
-  },
-  {
-    id: "bad-2",
-    title: "Wound Size Increasing",
-    description:
-      "The wound appears larger than previous documentation. Wound edges are pulling apart rather than closing.",
-    status: "bad",
-    imageDescription: "Wound with enlarged boundaries, deeper tissue visible",
-    tips: [
-      "Schedule an appointment with your care team",
-      "Review off-loading techniques",
-      "Assess for adequate blood flow",
-    ],
-  },
-  {
-    id: "bad-3",
-    title: "Dead Tissue Present",
-    description:
-      "Black, brown, or yellow slough tissue visible in wound bed. This tissue prevents healing and may need debridement.",
-    status: "bad",
-    imageDescription: "Wound with dark necrotic tissue or yellow slough",
-    tips: [
-      "Professional debridement may be needed",
-      "Do not attempt to remove tissue yourself",
-      "Consult your wound care specialist",
-    ],
-  },
-];
+function getBadExamples(t: any): WoundExample[] {
+  return [
+    {
+      id: "bad-1",
+      title: t.education.badExample1Title,
+      description: t.education.badExample1Description,
+      status: "bad",
+      imageDescription: t.education.badExample1ImageDesc,
+      tips: t.education.badExample1Tips,
+    },
+    {
+      id: "bad-2",
+      title: t.education.badExample2Title,
+      description: t.education.badExample2Description,
+      status: "bad",
+      imageDescription: t.education.badExample2ImageDesc,
+      tips: t.education.badExample2Tips,
+    },
+    {
+      id: "bad-3",
+      title: t.education.badExample3Title,
+      description: t.education.badExample3Description,
+      status: "bad",
+      imageDescription: t.education.badExample3ImageDesc,
+      tips: t.education.badExample3Tips,
+    },
+  ];
+}
 
 const educationTopics = [
   {
@@ -184,6 +158,7 @@ const educationTopics = [
 ];
 
 export default function EducationPage() {
+  const { t } = useLanguage();
   const [selectedExample, setSelectedExample] = useState<WoundExample | null>(
     null
   );
@@ -191,12 +166,15 @@ export default function EducationPage() {
     (typeof educationTopics)[0] | null
   >(null);
 
+  const goodExamples = getGoodExamples(t);
+  const badExamples = getBadExamples(t);
+
   return (
     <div className="flex flex-col gap-6 p-4 max-w-lg mx-auto pb-8">
       <div className="pt-2">
-        <h1 className="text-2xl font-semibold">Wound Care Education</h1>
+        <h1 className="text-2xl font-semibold">{t.education.title}</h1>
         <p className="text-muted-foreground">
-          Learn about proper wound care and what to look for
+          {t.education.subtitle}
         </p>
       </div>
 
@@ -205,10 +183,9 @@ export default function EducationPage() {
         <CardContent className="p-4 flex items-start gap-3">
           <ShieldCheck className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-medium text-sm">Daily Reminder</p>
+            <p className="font-medium text-sm">{t.education.dailyReminder}</p>
             <p className="text-sm text-muted-foreground">
-              Document your wound at the same time each day for the most
-              accurate tracking of healing progress.
+              {t.education.dailyReminderText}
             </p>
           </div>
         </CardContent>
@@ -216,16 +193,16 @@ export default function EducationPage() {
 
       {/* Wound Examples Tabs */}
       <div>
-        <h2 className="text-lg font-semibold mb-3">Wound Assessment Guide</h2>
+        <h2 className="text-lg font-semibold mb-3">{t.education.woundAssessmentGuide}</h2>
         <Tabs defaultValue="good" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="good" className="gap-2">
               <CheckCircle className="h-4 w-4" />
-              Good Signs
+              {t.education.goodSigns}
             </TabsTrigger>
             <TabsTrigger value="bad" className="gap-2">
               <XCircle className="h-4 w-4" />
-              Warning Signs
+              {t.education.warningSigns}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="good" className="mt-4">
@@ -287,7 +264,7 @@ export default function EducationPage() {
 
       {/* Education Topics */}
       <div>
-        <h2 className="text-lg font-semibold mb-3">Care Topics</h2>
+        <h2 className="text-lg font-semibold mb-3">{t.education.careTopics}</h2>
         <div className="grid grid-cols-2 gap-3">
           {educationTopics.map((topic) => (
             <Card
@@ -319,11 +296,11 @@ export default function EducationPage() {
                   variant="secondary"
                   className="bg-green-100 text-green-700"
                 >
-                  Good Sign
+                  {t.education.goodSign}
                 </Badge>
               ) : (
                 <Badge variant="secondary" className="bg-red-100 text-red-700">
-                  Warning Sign
+                  {t.education.warningSign}
                 </Badge>
               )}
             </div>
@@ -333,13 +310,13 @@ export default function EducationPage() {
           {selectedExample && (
             <div className="flex flex-col gap-4">
               <div className="p-4 bg-muted rounded-lg">
-                <p className="text-sm font-medium mb-1">What to look for:</p>
+                <p className="text-sm font-medium mb-1">{t.education.whatToLookFor}</p>
                 <p className="text-sm text-muted-foreground">
                   {selectedExample.imageDescription}
                 </p>
               </div>
               <div>
-                <p className="text-sm font-medium mb-2">Recommended Actions:</p>
+                <p className="text-sm font-medium mb-2">{t.education.recommendedActions}</p>
                 <ul className="space-y-2">
                   {selectedExample.tips.map((tip, index) => (
                     <li

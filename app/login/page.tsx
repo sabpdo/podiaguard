@@ -16,8 +16,11 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Heart, Stethoscope } from "lucide-react";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useLanguage } from "@/lib/i18n/context";
 
 export default function LoginPage() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +53,7 @@ export default function LoginPage() {
           },
         });
         if (error) throw error;
-        setMessage("Check your email for the confirmation link!");
+        setMessage(t.login.checkEmail);
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
@@ -74,19 +77,22 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
+      <div className="fixed top-4 right-4 z-50">
+        <LanguageSwitcher />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
             <Heart className="h-7 w-7 text-primary" />
           </div>
           <CardTitle className="text-2xl font-semibold text-balance">
-            Foot Ulcer Care
+            {t.login.title}
           </CardTitle>
           <CardDescription className="text-muted-foreground">
             {isSignUp
-              ? "Create an account to start managing your care"
-              : "Sign in to manage your foot ulcer care"}
+              ? t.login.signUpDescription
+              : t.login.signInDescription}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -104,7 +110,7 @@ export default function LoginPage() {
             
             {isSignUp && (
               <div className="flex flex-col gap-2">
-                <Label>I am a...</Label>
+                <Label>{t.login.iAmA}</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
@@ -117,7 +123,7 @@ export default function LoginPage() {
                   >
                     <Heart className={`h-6 w-6 ${role === "patient" ? "text-primary" : "text-muted-foreground"}`} />
                     <span className={`text-sm font-medium ${role === "patient" ? "text-primary" : "text-muted-foreground"}`}>
-                      Patient
+                      {t.login.patient}
                     </span>
                   </button>
                   <button
@@ -131,7 +137,7 @@ export default function LoginPage() {
                   >
                     <Stethoscope className={`h-6 w-6 ${role === "clinician" ? "text-primary" : "text-muted-foreground"}`} />
                     <span className={`text-sm font-medium ${role === "clinician" ? "text-primary" : "text-muted-foreground"}`}>
-                      Clinician
+                      {t.login.clinician}
                     </span>
                   </button>
                 </div>
@@ -139,22 +145,22 @@ export default function LoginPage() {
             )}
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t.login.email}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t.login.emailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t.login.password}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Your password"
+                placeholder={t.login.passwordPlaceholder}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -163,7 +169,7 @@ export default function LoginPage() {
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSignUp ? "Create Account" : "Sign In"}
+              {isSignUp ? t.login.createAccount : t.login.signIn}
             </Button>
             <Button
               type="button"
@@ -176,8 +182,8 @@ export default function LoginPage() {
               }}
             >
               {isSignUp
-                ? "Already have an account? Sign In"
-                : "Need an account? Sign Up"}
+                ? t.login.alreadyHaveAccount
+                : t.login.needAccount}
             </Button>
           </form>
         </CardContent>

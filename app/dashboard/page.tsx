@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Camera, LogOut, TrendingDown, TrendingUp, Flame, Baseline as ChartLine, Badge as Bandage, Bell, Loader2 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
+import { useLanguage } from "@/lib/i18n/context"
 
 interface Stats {
   totalPhotos: number
@@ -20,6 +21,7 @@ interface Stats {
 export default function DashboardPage() {
   const router = useRouter()
   const supabase = getSupabaseBrowserClient()
+  const { t, language } = useLanguage()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState("")
@@ -150,13 +152,13 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="bg-background border-b px-4 py-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-foreground">Welcome, {userName}</h1>
-            <p className="text-sm text-muted-foreground">Track your healing progress</p>
+          <div className={language === 'ar' ? 'pr-20' : 'pr-0'}>
+            <h1 className="text-xl font-semibold text-foreground">{t.dashboard.welcome} {userName}</h1>
+            <p className="text-sm text-muted-foreground">{t.dashboard.trackProgress}</p>
           </div>
           <Button variant="ghost" size="icon" onClick={handleSignOut}>
             <LogOut className="h-5 w-5" />
-            <span className="sr-only">Sign out</span>
+            <span className="sr-only">{t.common.signOut}</span>
           </Button>
         </div>
       </div>
@@ -164,24 +166,20 @@ export default function DashboardPage() {
       <div className="p-4 space-y-4">
         {/* Main Action Button */}
         <Card className="bg-gradient-to-br from-primary to-primary/80 border-0 text-background">
-          <CardContent className="flex items-center justify-between p-4 max-w-4xl mx-auto border-slate-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold mb-1">Analyze Your Wound</h2>
-                <p className="text-primary-foreground/80 text-sm">
-                  Take a photo for AI-powered analysis
-                </p>
-              </div>
-              <Button 
-                size="lg" 
-                variant="secondary"
-                className="gap-2"
-                onClick={() => router.push("/dashboard/capture")}
-              >
-                <Camera className="h-5 w-5" />
-                Start Analysis
-              </Button>
-            </div>
+          <CardContent className="flex flex-col items-center justify-center p-6 text-center max-w-4xl mx-auto">
+            <h2 className="text-xl font-semibold mb-2">{t.dashboard.analyzeWound}</h2>
+            <p className="text-primary-foreground/90 text-sm mb-4 max-w-md">
+              {t.dashboard.takePhoto}
+            </p>
+            <Button 
+              size="lg" 
+              variant="secondary"
+              className="gap-2 min-w-[200px]"
+              onClick={() => router.push("/dashboard/capture")}
+            >
+              <Camera className="h-5 w-5" />
+              {t.dashboard.startAnalysis}
+            </Button>
           </CardContent>
         </Card>
 
@@ -190,7 +188,7 @@ export default function DashboardPage() {
           {/* Current Size */}
           <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push("/dashboard/wound-details")}>
             <CardContent className="pt-4 pb-4">
-              <p className="text-xs text-muted-foreground mb-1">Current Size</p>
+              <p className="text-xs text-muted-foreground mb-1">{t.dashboard.currentSize}</p>
               <p className="text-2xl font-bold text-foreground">{stats.currentSize} cm²</p>
               <div className={`flex items-center gap-1 mt-1 ${isImproving ? "text-green-600" : "text-red-600"}`}>
                 {isImproving ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
@@ -202,11 +200,11 @@ export default function DashboardPage() {
           {/* Streak */}
           <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push("/dashboard/dressing-log")}>
             <CardContent className="pt-4 pb-4">
-              <p className="text-xs text-muted-foreground mb-1">Dressing Streak</p>
+              <p className="text-xs text-muted-foreground mb-1">{t.dashboard.careStreak}</p>
               <div className="flex items-center gap-2">
                 <Flame className="h-6 w-6 text-orange-500" />
                 <span className="text-2xl font-bold text-foreground">{stats.streak}</span>
-                <span className="text-sm text-muted-foreground">days</span>
+                <span className="text-sm text-muted-foreground">{t.dashboard.days}</span>
               </div>
             </CardContent>
           </Card>
@@ -224,8 +222,8 @@ export default function DashboardPage() {
                 <div className="p-3 bg-blue-100 rounded-full mb-2">
                   <ChartLine className="h-6 w-6 text-blue-600" />
                 </div>
-                <p className="font-medium text-sm text-foreground">View Progress</p>
-                <p className="text-xs text-muted-foreground mt-1">See healing trends</p>
+                <p className="font-medium text-sm text-foreground">{t.dashboard.viewProgress}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t.dashboard.seeHealingTrends}</p>
               </div>
             </CardContent>
           </Card>
@@ -240,8 +238,8 @@ export default function DashboardPage() {
                 <div className="p-3 bg-green-100 rounded-full mb-2">
                   <Bandage className="h-6 w-6 text-green-600" />
                 </div>
-                <p className="font-medium text-sm text-foreground">Log Dressing</p>
-                <p className="text-xs text-muted-foreground mt-1">Track changes</p>
+                <p className="font-medium text-sm text-foreground">{t.dashboard.logDressing}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t.dashboard.trackChanges}</p>
               </div>
             </CardContent>
           </Card>
@@ -260,9 +258,9 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-sm text-foreground">
-                    {stats.unreadNotifications} New Notification{stats.unreadNotifications > 1 ? "s" : ""}
+                    {stats.unreadNotifications} {stats.unreadNotifications > 1 ? t.dashboard.newNotifications : t.dashboard.newNotification}
                   </p>
-                  <p className="text-xs text-muted-foreground">Tap to view reminders and alerts</p>
+                  <p className="text-xs text-muted-foreground">{t.dashboard.tapToView}</p>
                 </div>
               </div>
             </CardContent>
@@ -272,8 +270,8 @@ export default function DashboardPage() {
         {/* Recent Activity */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Recent Activity</CardTitle>
-            <CardDescription>Your latest updates</CardDescription>
+            <CardTitle className="text-base">{t.dashboard.recentActivity}</CardTitle>
+            <CardDescription>{t.dashboard.yourLatestUpdates}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -283,9 +281,9 @@ export default function DashboardPage() {
                     <Camera className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-foreground">Photo uploaded</p>
+                    <p className="text-sm font-medium text-foreground">{t.dashboard.photoUploaded}</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(stats.lastUpload).toLocaleDateString("en-US", {
+                      {new Date(stats.lastUpload).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
                         month: "short",
                         day: "numeric",
                         hour: "numeric",
@@ -296,13 +294,13 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground">No recent activity</p>
+                  <p className="text-sm text-muted-foreground">{t.dashboard.noActivity}</p>
                   <Button 
                     variant="link" 
                     className="mt-1 h-auto p-0"
                     onClick={() => router.push("/dashboard/capture")}
                   >
-                    Take your first photo
+                    {t.dashboard.takeFirstPhoto}
                   </Button>
                 </div>
               )}
@@ -313,13 +311,12 @@ export default function DashboardPage() {
         {/* Quick Tips */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Daily Reminder</CardTitle>
+            <CardTitle className="text-base">{t.dashboard.dailyReminder}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
               <p className="text-sm text-blue-800">
-                Remember to change your wound dressing daily and keep the area clean and dry. 
-                Take a photo after each dressing change to track your progress.
+                {t.dashboard.reminderText}
               </p>
             </div>
           </CardContent>

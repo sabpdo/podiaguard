@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowLeft, Camera, Check, X, RotateCcw, Upload, Loader2, CheckCircle, Sparkles, Move, Sun, Moon, ArrowUp, ArrowDown, ArrowRight, Home } from "lucide-react"
 import Link from "next/link"
 import { DISTANCE_CONFIG, LIGHTING_CONFIG } from "./capture-config"
+import { useLanguage } from "@/lib/i18n/context"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 type CaptureStep = "camera" | "preview" | "confirm" | "success"
 
@@ -54,6 +56,7 @@ export default function CapturePage() {
     const detectionInterval = useRef<ReturnType<typeof setInterval> | null>(null)
     const router = useRouter()
     const supabase = getSupabaseBrowserClient()
+    const { t } = useLanguage()
 
     // Image processing fallback to detect cell phone-like shapes
     const detectCellPhoneWithImageProcessing = useCallback(async (input: HTMLVideoElement | HTMLCanvasElement): Promise<any[]> => {
@@ -661,25 +664,25 @@ export default function CapturePage() {
     // Get status messages
     const getStatusMessage = () => {
         if (!detectionStatus.hasCellPhone) {
-            return "Place your cell phone in the frame"
+            return t.capture.placeCellPhone
         }
 
         // Cell phone detected but not in right position
         if (detectionStatus.hasCellPhone && !isPositioned) {
-            const messages: string[] = ["Cell phone detected! Move your cell phone to the right position"]
+            const messages: string[] = [t.capture.cellPhoneDetected]
 
             if (detectionStatus.distance === "too-far") {
-                messages.push("Go further")
+                messages.push(t.capture.goFurther)
             } else if (detectionStatus.distance === "too-close") {
-                messages.push("Close enough")
+                messages.push(t.capture.closeEnough)
             } else if (detectionStatus.distance === "ideal") {
-                messages.push("Distance OK")
+                messages.push(t.capture.distanceOK)
             }
 
             if (detectionStatus.lighting === "too-dark") {
-                messages.push("Find brighter lighting")
+                messages.push(t.capture.findBrighterLighting)
             } else if (detectionStatus.lighting === "too-bright") {
-                messages.push("Reduce lighting")
+                messages.push(t.capture.reduceLighting)
             }
 
             return messages.join(" • ")
@@ -687,10 +690,10 @@ export default function CapturePage() {
 
         // Cell phone detected and positioned correctly
         if (detectionStatus.hasCellPhone && isPositioned) {
-            return "Perfect! Ready to capture"
+            return t.capture.perfectReady
         }
 
-        return "Place your cell phone in the frame"
+        return t.capture.placeCellPhone
     }
 
     const getStatusColor = () => {
@@ -711,8 +714,8 @@ export default function CapturePage() {
                             <ArrowLeft className="h-6 w-6" />
                         </Button>
                     </Link>
-                    <h1 className="text-white font-semibold">Podiaguard</h1>
-                    <div className="w-10" />
+                    <h1 className="text-white font-semibold">{t.capture.title}</h1>
+                    <LanguageSwitcher className="text-white border-white/50 bg-white/20 hover:bg-white/30 shadow-lg" />
                 </div>
 
                 {/* Loading Model Indicator */}
@@ -720,7 +723,7 @@ export default function CapturePage() {
                     <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/50">
                         <div className="text-center text-white">
                             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
-                            <p>Loading AI model...</p>
+                            <p>{t.capture.loadingModel}</p>
                         </div>
                     </div>
                 )}
@@ -782,7 +785,13 @@ export default function CapturePage() {
                                                 color: 'white',
                                             }}
                                         >
-                                            {isCellPhone ? '✅ CELL PHONE' : detection.class} ({(detection.score * 100).toFixed(0)}%)
+                                            {isCellPhone
+                                                ? `✅ ${t.capture.cellPhone.toUpperCase()}`
+                                                : (detection.class === 'cell phone' || detection.class === 'phone' || detection.class === 'mobile phone'
+                                                    ? t.capture.cellPhone
+                                                    : detection.class === 'person'
+                                                        ? t.capture.person
+                                                        : detection.class)} ({(detection.score * 100).toFixed(0)}%)
                                         </div>
                                     </div>
                                 )
@@ -821,7 +830,7 @@ export default function CapturePage() {
                                             {guidance.left && (
                                                 <div className="absolute left-4 flex flex-col items-center gap-2 text-red-500">
                                                     <ArrowLeft className="h-8 w-8 animate-pulse" />
-                                                    <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">Move left</span>
+                                                    <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">{t.capture.moveLeft}</span>
                                                 </div>
                                             )}
 
@@ -829,7 +838,7 @@ export default function CapturePage() {
                                             {guidance.right && (
                                                 <div className="absolute right-4 flex flex-col items-center gap-2 text-red-500">
                                                     <ArrowRight className="h-8 w-8 animate-pulse" />
-                                                    <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">Move right</span>
+                                                    <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">{t.capture.moveRight}</span>
                                                 </div>
                                             )}
 
@@ -837,7 +846,7 @@ export default function CapturePage() {
                                             {guidance.up && (
                                                 <div className="absolute top-4 flex flex-col items-center gap-2 text-red-500">
                                                     <ArrowUp className="h-8 w-8 animate-pulse" />
-                                                    <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">Move up</span>
+                                                    <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">{t.capture.moveUp}</span>
                                                 </div>
                                             )}
 
@@ -845,7 +854,7 @@ export default function CapturePage() {
                                             {guidance.down && (
                                                 <div className="absolute bottom-4 flex flex-col items-center gap-2 text-red-500">
                                                     <ArrowDown className="h-8 w-8 animate-pulse" />
-                                                    <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">Move down</span>
+                                                    <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">{t.capture.moveDown}</span>
                                                 </div>
                                             )}
 
@@ -855,12 +864,12 @@ export default function CapturePage() {
                                                     {detectionStatus.distance === "too-far" ? (
                                                         <>
                                                             <ArrowUp className="h-8 w-8 animate-bounce" />
-                                                            <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">Move closer</span>
+                                                            <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">{t.capture.moveCloser}</span>
                                                         </>
                                                     ) : (
                                                         <>
                                                             <ArrowDown className="h-8 w-8 animate-bounce" />
-                                                            <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">Move farther</span>
+                                                            <span className="text-xs font-medium bg-black/70 px-2 py-1 rounded">{t.capture.moveFarther}</span>
                                                         </>
                                                     )}
                                                 </div>
@@ -894,12 +903,12 @@ export default function CapturePage() {
                                             {detectionStatus.distance === "too-far" ? (
                                                 <>
                                                     <ArrowDown className="h-4 w-4" />
-                                                    Go further
+                                                    {t.capture.goFurther}
                                                 </>
                                             ) : (
                                                 <>
                                                     <ArrowUp className="h-4 w-4" />
-                                                    Close enough
+                                                    {t.capture.closeEnough}
                                                 </>
                                             )}
                                         </div>
@@ -907,7 +916,7 @@ export default function CapturePage() {
                                     {detectionStatus.distance === "ideal" && (
                                         <div className="px-3 py-1.5 rounded-full bg-green-500/80 backdrop-blur-sm text-white text-xs flex items-center gap-1">
                                             <Check className="h-4 w-4" />
-                                            Distance OK
+                                            {t.capture.distanceOK}
                                         </div>
                                     )}
                                     {detectionStatus.lighting !== "ideal" && (
@@ -915,12 +924,12 @@ export default function CapturePage() {
                                             {detectionStatus.lighting === "too-dark" ? (
                                                 <>
                                                     <Sun className="h-4 w-4" />
-                                                    Too dark
+                                                    {t.capture.tooDark}
                                                 </>
                                             ) : (
                                                 <>
                                                     <Moon className="h-4 w-4" />
-                                                    Too bright
+                                                    {t.capture.tooBright}
                                                 </>
                                             )}
                                         </div>
@@ -960,7 +969,7 @@ export default function CapturePage() {
                         <Button variant="ghost" size="icon" onClick={retakePhoto}>
                             <ArrowLeft className="h-6 w-6" />
                         </Button>
-                        <h1 className="text-xl font-semibold flex-1">Review Photo</h1>
+                        <h1 className="text-xl font-semibold flex-1">{t.capture.reviewPhoto}</h1>
                         <Button variant="ghost" size="icon" onClick={() => router.push("/dashboard")}>
                             <Home className="h-6 w-6" />
                         </Button>
@@ -978,16 +987,16 @@ export default function CapturePage() {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">Add Notes (Optional)</CardTitle>
+                            <CardTitle className="text-base">{t.capture.addNotes}</CardTitle>
                             <CardDescription>
-                                Describe any changes or observations
+                                {t.capture.notesDescription}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Textarea
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
-                                placeholder="E.g., Wound appears smaller today, less redness around edges..."
+                                placeholder={t.capture.notesPlaceholder}
                                 rows={4}
                             />
                         </CardContent>
@@ -996,11 +1005,11 @@ export default function CapturePage() {
                     <div className="flex flex-col gap-3">
                         <Button onClick={confirmPhoto} size="lg" className="w-full gap-2">
                             <Sparkles className="h-5 w-5" />
-                            Analyze This Photo
+                            {t.capture.analyzePhoto}
                         </Button>
                         <Button onClick={retakePhoto} variant="outline" size="lg" className="w-full bg-transparent">
                             <RotateCcw className="mr-2 h-5 w-5" />
-                            Retake Photo
+                            {t.capture.retakePhoto}
                         </Button>
                     </div>
                 </div>
@@ -1014,9 +1023,9 @@ export default function CapturePage() {
             <div className="min-h-screen bg-background p-4 flex items-center justify-center">
                 <Card className="w-full max-w-md">
                     <CardHeader className="text-center">
-                        <CardTitle>Confirm Upload & Analysis</CardTitle>
+                        <CardTitle>{t.capture.confirmUpload}</CardTitle>
                         <CardDescription>
-                            Your photo will be analyzed by AI
+                            {t.capture.uploadDescription}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4">
@@ -1032,7 +1041,7 @@ export default function CapturePage() {
                         />
                         {notes && (
                             <div className="p-3 bg-muted rounded-lg">
-                                <p className="text-sm font-medium mb-1">Your Notes:</p>
+                                <p className="text-sm font-medium mb-1">{t.capture.yourNotes}</p>
                                 <p className="text-sm text-muted-foreground">{notes}</p>
                             </div>
                         )}
@@ -1047,12 +1056,12 @@ export default function CapturePage() {
                             {isUploading ? (
                                 <>
                                     <Loader2 className="h-5 w-5 animate-spin" />
-                                    Analyzing...
+                                    {t.capture.analyzing}
                                 </>
                             ) : (
                                 <>
                                     <Upload className="h-5 w-5" />
-                                    Upload & Analyze
+                                    {t.capture.uploadAnalyze}
                                 </>
                             )}
                         </Button>
@@ -1062,7 +1071,7 @@ export default function CapturePage() {
                             disabled={isUploading}
                             className="w-full"
                         >
-                            Go Back
+                            {t.capture.goBack}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -1079,9 +1088,9 @@ export default function CapturePage() {
                         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
                             <CheckCircle className="h-10 w-10 text-green-600" />
                         </div>
-                        <CardTitle className="text-2xl">Analysis Complete!</CardTitle>
+                        <CardTitle className="text-2xl">{t.capture.analysisComplete}</CardTitle>
                         <CardDescription>
-                            Your wound photo has been analyzed successfully
+                            {t.capture.analysisSuccess}
                         </CardDescription>
                     </CardHeader>
                     <CardFooter className="flex flex-col gap-3">
@@ -1092,7 +1101,7 @@ export default function CapturePage() {
                                 className="w-full gap-2"
                             >
                                 <Sparkles className="h-5 w-5" />
-                                View Analysis Results
+                                {t.capture.viewResults}
                             </Button>
                         )}
                         <Button
@@ -1101,7 +1110,7 @@ export default function CapturePage() {
                             size="lg"
                             className="w-full"
                         >
-                            Back to Dashboard
+                            {t.capture.backToDashboard}
                         </Button>
                     </CardFooter>
                 </Card>

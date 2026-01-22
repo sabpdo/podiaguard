@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, Flame, Plus, Check, Calendar } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts"
+import { useLanguage } from "@/lib/i18n/context"
 
 interface DressingLog {
   id: string
@@ -20,6 +21,7 @@ interface DressingLog {
 export default function DressingLogPage() {
   const router = useRouter()
   const supabase = getSupabaseBrowserClient()
+  const { t, language } = useLanguage()
   const [logs, setLogs] = useState<DressingLog[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -122,6 +124,10 @@ export default function DressingLogPage() {
   const getWeekData = () => {
     const data = []
     const today = new Date()
+    const locale = language === 'ar' ? 'ar-SA' : 'en-US'
+    
+    // Short Arabic day names (without ال prefix for compact display)
+    const arabicDayShort: string[] = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت']
     
     for (let i = 6; i >= 0; i--) {
       const date = new Date(today)
@@ -132,8 +138,17 @@ export default function DressingLogPage() {
         new Date(log.created_at).toDateString() === dateStr
       )
       
+      let dayLabel: string
+      if (language === 'ar') {
+        // Use day of week index (0 = Sunday, 6 = Saturday) for Arabic short names
+        const dayIndex = date.getDay()
+        dayLabel = arabicDayShort[dayIndex]
+      } else {
+        dayLabel = date.toLocaleDateString(locale, { weekday: "short" })
+      }
+      
       data.push({
-        day: date.toLocaleDateString("en-US", { weekday: "short" }),
+        day: dayLabel,
         logged: logged ? 1 : 0,
         isToday: i === 0
       })
@@ -143,6 +158,7 @@ export default function DressingLogPage() {
   }
 
   const weekData = getWeekData()
+  const locale = language === 'ar' ? 'ar-SA' : 'en-US'
 
   if (loading) {
     return (
@@ -161,8 +177,8 @@ export default function DressingLogPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-semibold text-foreground">Dressing Log</h1>
-            <p className="text-sm text-muted-foreground">Track your wound dressing changes</p>
+            <h1 className="text-xl font-semibold text-foreground">{t.dressingLog.title}</h1>
+            <p className="text-sm text-muted-foreground">{t.dressingLog.subtitle}</p>
           </div>
         </div>
       </div>
@@ -173,14 +189,14 @@ export default function DressingLogPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-orange-100 text-sm mb-1">Current Streak</p>
+                <p className="text-orange-100 text-sm mb-1">{t.dressingLog.currentStreak}</p>
                 <div className="flex items-center gap-2">
                   <Flame className="h-8 w-8" />
                   <span className="text-4xl font-bold">{streak}</span>
-                  <span className="text-xl">day{streak !== 1 ? "s" : ""}</span>
+                  <span className="text-xl">{streak !== 1 ? t.dressingLog.days : t.dressingLog.day}</span>
                 </div>
                 <p className="text-orange-100 text-sm mt-2">
-                  {streak > 0 ? "Keep up the great work!" : "Start your streak today!"}
+                  {streak > 0 ? t.dressingLog.keepUpGreatWork : t.dressingLog.startStreakToday}
                 </p>
               </div>
               {!todayLogged && (
@@ -191,13 +207,13 @@ export default function DressingLogPage() {
                   onClick={() => setShowAddForm(true)}
                 >
                   <Plus className="h-5 w-5 mr-2" />
-                  Log Today
+                  {t.dressingLog.logToday}
                 </Button>
               )}
               {todayLogged && (
                 <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-lg">
                   <Check className="h-5 w-5" />
-                  <span>Done today!</span>
+                  <span>{t.dressingLog.doneToday}</span>
                 </div>
               )}
             </div>
@@ -208,12 +224,12 @@ export default function DressingLogPage() {
         {showAddForm && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Log Dressing Change</CardTitle>
-              <CardDescription>Record when you changed your wound dressing</CardDescription>
+              <CardTitle className="text-lg">{t.dressingLog.logDressingChange}</CardTitle>
+              <CardDescription>{t.dressingLog.logDressingChangeDescription}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Textarea
-                placeholder="Optional notes (e.g., wound appearance, any concerns...)"
+                placeholder={t.dressingLog.notesPlaceholder}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
@@ -224,13 +240,13 @@ export default function DressingLogPage() {
                   disabled={submitting}
                   className="flex-1"
                 >
-                  {submitting ? "Logging..." : "Log Dressing Change"}
+                  {submitting ? t.dressingLog.logging : t.dressingLog.logDressingChangeButton}
                 </Button>
                 <Button 
                   variant="outline" 
                   onClick={() => setShowAddForm(false)}
                 >
-                  Cancel
+                  {t.dressingLog.cancel}
                 </Button>
               </div>
             </CardContent>
@@ -240,21 +256,35 @@ export default function DressingLogPage() {
         {/* Weekly Overview Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>This Week</CardTitle>
-            <CardDescription>Your dressing change activity</CardDescription>
+            <CardTitle>{t.dressingLog.thisWeek}</CardTitle>
+            <CardDescription>{t.dressingLog.thisWeekDescription}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[150px] w-full">
+            <div className="h-[140px] w-full overflow-hidden" dir="ltr">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weekData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                <BarChart 
+                  data={weekData} 
+                  margin={{ 
+                    top: 2, 
+                    right: language === 'ar' ? 0 : 2, 
+                    left: language === 'ar' ? 0 : 2, 
+                    bottom: language === 'ar' ? 35 : 2 
+                  }}
+                  barCategoryGap={language === 'ar' ? "20%" : "15%"}
+                >
                   <XAxis 
                     dataKey="day" 
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: language === 'ar' ? 7 : 10 }}
                     tickLine={false}
                     axisLine={false}
+                    angle={language === 'ar' ? -45 : 0}
+                    textAnchor={language === 'ar' ? 'end' : 'middle'}
+                    height={language === 'ar' ? 35 : 20}
+                    interval={0}
+                    style={{ fontSize: language === 'ar' ? '7px' : '10px' }}
                   />
-                  <YAxis hide domain={[0, 1]} />
-                  <Bar dataKey="logged" radius={[4, 4, 4, 4]} maxBarSize={40}>
+                  <YAxis hide domain={[0, 1]} width={0} />
+                  <Bar dataKey="logged" radius={[3, 3, 3, 3]} maxBarSize={language === 'ar' ? 18 : 30}>
                     {weekData.map((entry, index) => (
                       <Cell 
                         key={`cell-${index}`}
@@ -268,11 +298,11 @@ export default function DressingLogPage() {
             <div className="flex justify-center gap-4 mt-2 text-xs text-muted-foreground">
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 rounded bg-green-600" />
-                <span>Completed</span>
+                <span>{t.dressingLog.completed}</span>
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 rounded bg-gray-200" />
-                <span>Missed</span>
+                <span>{t.dressingLog.missed}</span>
               </div>
             </div>
           </CardContent>
@@ -281,8 +311,8 @@ export default function DressingLogPage() {
         {/* Recent Logs */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Logs</CardTitle>
-            <CardDescription>Your dressing change history</CardDescription>
+            <CardTitle>{t.dressingLog.recentLogs}</CardTitle>
+            <CardDescription>{t.dressingLog.recentLogsDescription}</CardDescription>
           </CardHeader>
           <CardContent>
             {logs.length > 0 ? (
@@ -294,7 +324,7 @@ export default function DressingLogPage() {
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-sm text-foreground">
-                        {new Date(log.created_at).toLocaleDateString("en-US", { 
+                        {new Date(log.created_at).toLocaleDateString(locale, { 
                           weekday: "long", 
                           month: "short", 
                           day: "numeric",
@@ -302,7 +332,7 @@ export default function DressingLogPage() {
                         })}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(log.created_at).toLocaleTimeString("en-US", { 
+                        {new Date(log.created_at).toLocaleTimeString(locale, { 
                           hour: "numeric", 
                           minute: "2-digit" 
                         })}
@@ -317,9 +347,9 @@ export default function DressingLogPage() {
             ) : (
               <div className="text-center py-8">
                 <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">No dressing changes logged yet</p>
+                <p className="text-muted-foreground">{t.dressingLog.noLogsYet}</p>
                 <Button className="mt-4" onClick={() => setShowAddForm(true)}>
-                  Log Your First Change
+                  {t.dressingLog.logFirstChange}
                 </Button>
               </div>
             )}

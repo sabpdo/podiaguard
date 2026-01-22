@@ -16,6 +16,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Shield } from "lucide-react";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export default function PrivacyAgreementPage() {
   const [accepted, setAccepted] = useState(false);
@@ -86,7 +87,10 @@ export default function PrivacyAgreementPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
+      <div className="fixed top-4 right-4 z-50">
+        <LanguageSwitcher />
+      </div>
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">

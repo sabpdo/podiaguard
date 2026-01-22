@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2, Camera, Calendar, FileText } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/context";
 
 interface UlcerImage {
   id: string;
@@ -28,6 +29,7 @@ interface UlcerImage {
 }
 
 export default function GalleryPage() {
+  const { t, language } = useLanguage();
   const [images, setImages] = useState<UlcerImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<UlcerImage | null>(null);
@@ -95,7 +97,8 @@ export default function GalleryPage() {
   }, [supabase]);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    const locale = language === 'ar' ? 'ar-SA' : 'en-US';
+    return new Date(dateString).toLocaleDateString(locale, {
       weekday: "short",
       month: "short",
       day: "numeric",
@@ -104,7 +107,8 @@ export default function GalleryPage() {
   };
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("en-US", {
+    const locale = language === 'ar' ? 'ar-SA' : 'en-US';
+    return new Date(dateString).toLocaleTimeString(locale, {
       hour: "numeric",
       minute: "2-digit",
     });
@@ -121,9 +125,9 @@ export default function GalleryPage() {
   return (
     <div className="flex flex-col gap-6 p-4 max-w-lg mx-auto">
       <div className="pt-2">
-        <h1 className="text-2xl font-semibold">Photo History</h1>
+        <h1 className="text-2xl font-semibold">{t.gallery.title}</h1>
         <p className="text-muted-foreground">
-          View all your documented photos
+          {t.gallery.subtitle}
         </p>
       </div>
 
@@ -134,13 +138,13 @@ export default function GalleryPage() {
               <Camera className="h-8 w-8 text-muted-foreground" />
             </div>
             <div>
-              <h3 className="font-semibold mb-1">No photos yet</h3>
+              <h3 className="font-semibold mb-1">{t.gallery.noPhotos}</h3>
               <p className="text-sm text-muted-foreground">
-                Start documenting your ulcer to track healing progress
+                {t.gallery.noPhotosDescription}
               </p>
             </div>
             <Link href="/dashboard/capture">
-              <Button>Take First Photo</Button>
+              <Button>{t.gallery.takeFirstPhoto}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -211,7 +215,7 @@ export default function GalleryPage() {
                 <div className="p-3 bg-muted rounded-lg">
                   <p className="text-sm font-medium mb-1 flex items-center gap-2">
                     <FileText className="h-4 w-4" />
-                    Notes
+                    {t.gallery.notes}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {selectedImage.notes}
